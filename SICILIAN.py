@@ -222,7 +222,7 @@ def main():
 # If the --runs argument is provided, use those runs; otherwise, detect all runs in the data_path
   if args.runs:
     runs_to_process = args.runs
-      else:
+  else:
     runs_to_process = [os.path.basename(run_path) for run_path in glob.glob(os.path.join(data_path, "*")) if os.path.isdir(run_path)]
 
   for run in runs_to_process:
