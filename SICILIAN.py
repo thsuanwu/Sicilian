@@ -228,7 +228,7 @@ def main():
   for run in runs_to_process:
     print(f"Processing run: {run}")
 
-  break
+  breaksys.exit()  # Exit the script after printing the detected runs
 
   if not single:
     run_whitelist = False
