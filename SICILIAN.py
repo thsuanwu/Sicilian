@@ -4,6 +4,7 @@ import glob
 import os
 import subprocess
 import sys
+import argparse
 import time
 import argparse
 
@@ -142,7 +143,7 @@ def submit_job(file_name):
 
 def main():
 
-###########################################################################################
+##########################################################################################
 ################## Input arguments that should be set by the user  ########################
 ###########################################################################################
   data_path = "/scratch/PI/horence/Roozbeh/single_cell_project/data/TSP2_SS2/RUN2/"
@@ -164,6 +165,44 @@ def main():
 #########################################################################################
 #########################################################################################
 #########################################################################################
+
+  parser = argparse.ArgumentParser(description="Wrapper script for running SICILIAN.")
+  parser.add_argument("--data_path", type=str, required=True, help="Path to the directory that contains the fastq files for the input RNA-Seq data.")
+  parser.add_argument("--out_dir", type=str, required=True, help="Path to the directory that will contain the folder specified by run_name for SICILIAN output files.")
+  parser.add_argument("--run_name", type=str, required=True, help="Folder name for the SICILIAN output files.")
+  parser.add_argument("--r_ends", nargs='+', type=str, required=True, help="List of unique endings for the file names of R1 and R2 fastq files. Example: --r_ends _1.fastq.gz _2.fastq.gz")
+  parser.add_argument("--names", nargs='+', type=str, required=True, help="List of sample names.")
+  parser.add_argument("--star_path", type=str, required=True, help="Path to the STAR executable file.")
+  parser.add_argument("--star_ref_path", type=str, required=True, help="Path to the STAR index files.")
+  parser.add_argument("--gtf_file", type=str, required=True, help="Path to the GTF file used as the reference annotation file for the genome assembly.")
+  parser.add_argument("--annotator_file", type=str, required=True, help="Path to the annotation_name.pkl file.")
+  parser.add_argument("--exon_pickle_file", type=str, required=False, help="Path to the annotation_name_exon_bounds.pkl file.")
+  parser.add_argument("--splice_pickle_file", type=str, required=False, help="Path to the annotation_name_splices.pkl file.")
+  parser.add_argument("--domain_file", type=str, required=False, help="Path to the reference file for annotated protein domains downloaded from UCSC used for finding missing and inserted protein domains in the splice junction.")
+  parser.add_argument("--single", action="store_true", help="Set this flag if the data is single-end.")
+  parser.add_argument("--tenX", action="store_true", help="Set this flag if the input RNA-Seq data is 10x.")
+  parser.add_argument("--stranded_library", action="store_true", help="Set this flag if input RNA-Seq data is based on a stranded library.")
+# parser.add_argument("--bc_pattern", type=str, default="C"*16 + "N"*12, help="Barcode pattern for 10x data.")
+
+  args = parser.parse_args()
+
+  # Use the arguments from command line
+  data_path = args.data_path
+  out_dir = args.out_dir
+  run_name = args.run_name
+  r_ends = args.r_ends
+  names = args.names
+  star_path = args.star_path
+  star_ref_path = args.star_ref_path
+  gtf_file = args.gtf_file
+  annotator_file = args.annotator_file
+  exon_pickle_file = args.exon_pickle_file
+  splice_pickle_file = args.splice_pickle_file
+  domain_file = args.domain_file
+  single = args.single
+  tenX = args.tenX
+  stranded_library = args.stranded_library
+# bc_pattern = args.bc_pattern
 
 
 ## Toggles for deciding which steps in SICILIAN should be run #####
