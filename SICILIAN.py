@@ -17,7 +17,7 @@ def sbatch_file(file_name,out_path, name, job_name, time, mem, command, dep="", 
   job_file.write("#SBATCH --error={}{}/log_files/{}.%j.err\n".format(out_path, name,job_name))
   job_file.write("#SBATCH --time={}\n".format(time))
   #job_file.write("#SBATCH --qos=high_p\n")
-  job_file.write("#SBATCH -p horence,owners,quake\n")
+  job_file.write("#SBATCH -p mnicolls,owners\n")
 #  job_file.write("#SBATCH --account=horence\n")
 #  job_file.write("#SBATCH --partition=nih_s10\n")
   job_file.write("#SBATCH --nodes=1\n")
