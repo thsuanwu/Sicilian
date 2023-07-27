@@ -21,6 +21,8 @@ def sbatch_file(file_name,out_path, name, job_name, time, mem, command, dep="", 
   job_file.write("#SBATCH --account=mnicolls\n")
 #  job_file.write("#SBATCH --account=horence\n")
 #  job_file.write("#SBATCH --partition=nih_s10\n")
+  job_file.write("#SBATCH --mail-user=thsuanwu@stanford.edu")
+  job_file.write("#SBATCH --mail-type=ALL")
   job_file.write("#SBATCH --nodes=1\n")
   job_file.write("#SBATCH --mem={}\n".format(mem)) 
   if dep != "":
@@ -167,7 +169,8 @@ def main():
 #########################################################################################
 #########################################################################################
 
-  parser = argparse.ArgumentParser(description="Wrapper script for running SICILIAN.")
+  parser = argparse.ArgumentParser(description="Wrapper script for running SICILIAN")
+  parser.add_argument("--runs", nargs="*", help="List of runs to process (optional)")
   parser.add_argument("--data_path", type=str, required=True, help="Path to the directory that contains the fastq files for the input RNA-Seq data.")
   parser.add_argument("--out_dir", type=str, required=True, help="Path to the directory that will contain the folder specified by run_name for SICILIAN output files.")
   parser.add_argument("--run_name", type=str, required=True, help="Folder name for the SICILIAN output files.")
@@ -205,7 +208,6 @@ def main():
   stranded_library = args.stranded_library
 # bc_pattern = args.bc_pattern
 
-
 ## Toggles for deciding which steps in SICILIAN should be run #####
   run_whitelist = False
   run_extract = False
@@ -216,6 +218,17 @@ def main():
 
 
   out_path = out_dir + "/{}/".format(run_name) 
+
+# If the --runs argument is provided, use those runs; otherwise, detect all runs in the data_path
+  if args.runs:
+    runs_to_process = args.runs
+      else:
+    runs_to_process = [os.path.basename(run_path) for run_path in glob.glob(os.path.join(data_path, "*")) if os.path.isdir(run_path)]
+
+  for run in runs_to_process:
+    print(f"Processing run: {run}")
+
+  break
 
   if not single:
     run_whitelist = False
