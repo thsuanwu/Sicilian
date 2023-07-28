@@ -116,23 +116,61 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
   sbatch_file("run_class_input.sh", out_path, name,"class_input_{}".format(name), "48:00:00", "200Gb", command, dep=dep)  # 96:00:00, and 210 Gb for Lu, 100 for others
   return submit_job("run_class_input.sh")
 
+def STAR_map(out_path, data_path, name, r_ends=None, gzip=None, single=None, gtf_file=None, tenX=None, star_path=None, star_ref_path=None, suffix=".fastq.gz", dep=""):
+    """Run script to perform mapping job for STAR"""
 
-def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
-  """Run script to perform mapping job for STAR"""
-  if tenX and r_ends is None:
-        r1_file, r2_file = detect_10x_fastq_files(data_path)
-        if r1_file and r2_file:
-            r_ends = [os.path.basename(r1_file), os.path.basename(r2_file)]
-        else:
-            print("Error: R1 and R2 files not found.")
+    # If tenX is True, automatically detect R1 and R2 files with the specified suffix
+    if tenX and r_ends is None:
+        r1_files = glob.glob(os.path.join(data_path, f"*{suffix}"))
+        r2_files = [f.replace("_R1_", "_R2_") for f in r1_files]
+        if not r1_files or not all(os.path.exists(f) for f in r2_files):
+            print("Error: R1 or R2 files not found.")
             return None
+
+        r1_file = r1_files[0]  # Assuming there is only one R1 file
+        r2_file = r2_files[0]  # Assuming the corresponding R2 file exists
+
+        r_ends = [os.path.basename(r1_file), os.path.basename(r2_file)]
 
     if r_ends is None:
         print("Error: r_ends not provided.")
         return None
 
-  print(r1_file)
-  print(r2_file)
+    # Construct the call to STAR
+    command = "{} --runThreadN 4 ".format(star_path)
+    command += "--genomeDir {} ".format(star_ref_path)
+
+    if single:
+        # Single-end data
+        command += "--readFilesIn {} ".format(os.path.join(data_path, name + r_ends[0]))
+    else:
+        # Paired-end data
+        command += "--readFilesIn {} {} ".format(os.path.join(data_path, name + r_ends[0]), os.path.join(data_path, name + r_ends[1]))
+
+    if gzip:
+        command += "--readFilesCommand zcat "
+
+    command += "--twopassMode Basic "
+    command += "--alignIntronMax 1000000 "
+    command += "--outFileNamePrefix {}{}/ ".format(out_path, name)
+    command += "--outSAMtype BAM Unsorted "
+    command += "--outSAMattributes All "
+    command += "--chimOutType WithinBAM SoftClip Junctions "
+    command += "--chimJunctionOverhangMin 10 "
+    command += "--chimSegmentReadGapMax 0 "
+    command += "--chimOutJunctionFormat 1 "
+    command += "--chimSegmentMin 12 "
+    command += "--quantMode GeneCounts "
+    command += "--sjdbGTFfile {} ".format(gtf_file)
+    command += "--outReadsUnmapped Fastx \n\n"
+
+    # Submit the job
+    sbatch_file_name = "run_map.sh"
+    sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "24:00:00", "60Gb", command, dep=dep)
+    return submit_job(sbatch_file_name)
+
+def STAR_map_depracated(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
+  """Run script to perform mapping job for STAR"""
 
   command = "mkdir -p {}{}\n".format(out_path, name)
   command += "{} --version\n".format(star_path)
@@ -144,7 +182,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
     command += "{} --runThreadN 4 ".format(star_path)
     command += "--genomeDir {} ".format(star_ref_path)
     if tenX:
-      command += "--readFilesIn {}{}_extracted{} ".format(data_path, r_ends[i])
+      command += "--readFilesIn {}{}_extracted{} ".format(data_path, name, r_ends[i])
     else:
       command += "--readFilesIn {}{}{} ".format(data_path, name, r_ends[i])
     if gzip:
