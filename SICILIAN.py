@@ -256,7 +256,7 @@ def main():
     #  job_nums = []
 
     if not os.path.exists("{}{}/log_files".format(out_path, name)):
-    os.makedirs("{}{}/log_files".format(out_path, name))
+      os.makedirs("{}{}/log_files".format(out_path, name))
 
     if run_whitelist:
       whitelist_jobid = whitelist(data_path,out_path, name, bc_pattern, r_ends)
