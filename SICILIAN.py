@@ -118,7 +118,7 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
 
 def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
   """Run script to perform mapping job for STAR"""
-  print(single)
+  print(name)
   # Pattern matching to find R1 and R2 files
   r1_files = glob.glob(os.path.join(data_path, f"{name}_R1*fastq*"))
   r2_files = glob.glob(os.path.join(data_path, f"{name}_R2*fastq*"))
