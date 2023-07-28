@@ -235,6 +235,9 @@ def main():
     print(f"Processing run: {run}")
     name = run
 
+    data_path = os.path.join(data_path, name, '')
+    print(f"Data path: {data_path}")
+
     # Create a directory for the current run
     #out_parent_dir = os.path.join(project_path)
     #print(out_parent_dir)
