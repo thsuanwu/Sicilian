@@ -356,7 +356,7 @@ def main():
       job_nums.append(extract_jobid)
     else:
       extract_jobid = ""
-
+    print(single)
     if run_map:
       map_jobid = STAR_map(project_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ":".join(job_nums))
       jobs.append("map_{}.{}".format(name,map_jobid))
