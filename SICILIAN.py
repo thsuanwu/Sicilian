@@ -116,7 +116,10 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
   sbatch_file("run_class_input.sh", out_path, name,"class_input_{}".format(name), "48:00:00", "200Gb", command, dep=dep)  # 96:00:00, and 210 Gb for Lu, 100 for others
   return submit_job("run_class_input.sh")
 
-# Pattern matching to find R1 and R2 files
+def STAR_map(out_path, data_path, name, gzip=None, single=None, gtf_file=None, tenX=None, star_path=None, star_ref_path=None, suffix=".fastq.gz", dep=""):
+  """Run script to perform mapping job for STAR"""
+
+  # Pattern matching to find R1 and R2 files
   r1_files = glob.glob(os.path.join(data_path, f"{name}_R1*{suffix}"))
   r2_files = glob.glob(os.path.join(data_path, f"{name}_R2*{suffix}"))
 
@@ -161,7 +164,7 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
   sbatch_file_name = "run_map.sh"
   sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "24:00:00", "60Gb", command, dep=dep)
   return submit_job(sbatch_file_name)
-
+    
 def STAR_map_depracated(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
   """Run script to perform mapping job for STAR"""
 
