@@ -128,8 +128,6 @@ def STAR_map(out_path, data_path, name, gzip, single, gtf_file, tenX, star_path,
   print("Detected R2 files:")
   print(r2_files)
 
-  print(single)
-
   # Automatically detect single or paired-end data if not specified
   if single is None:
       single = not (r1_files and r2_files)
