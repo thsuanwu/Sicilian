@@ -119,22 +119,15 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
 def STAR_map(out_path, data_path, name, r_ends=None, gzip=None, single=None, gtf_file=None, tenX=None, star_path=None, star_ref_path=None, suffix=".fastq.gz", dep=""):
     """Run script to perform mapping job for STAR"""
 
-    # If tenX is True, automatically detect R1 and R2 files with the specified suffix
-    if tenX and r_ends is None:
-        r1_files = glob.glob(os.path.join(data_path, f"*{suffix}"))
-        r2_files = [f.replace("_R1_", "_R2_") for f in r1_files]
-        if not r1_files or not all(os.path.exists(f) for f in r2_files):
-            print("Error: R1 or R2 files not found.")
-            return None
-
-        r1_file = r1_files[0]  # Assuming there is only one R1 file
-        r2_file = r2_files[0]  # Assuming the corresponding R2 file exists
-
-        r_ends = [os.path.basename(r1_file), os.path.basename(r2_file)]
-
+    # If r_ends is not provided, detect files with the specified suffix
     if r_ends is None:
-        print("Error: r_ends not provided.")
-        return None
+        r_ends = []
+        for end in ["_R1_", "_R2_"] if not single else ["_R1_"]:
+            files = glob.glob(os.path.join(data_path, f"*{name}*{end}*{suffix}"))
+            if not files:
+                print(f"Error: {end} files not found.")
+                return None
+            r_ends.append(os.path.basename(files[0]))
 
     # Construct the call to STAR
     command = "{} --runThreadN 4 ".format(star_path)
@@ -142,10 +135,12 @@ def STAR_map(out_path, data_path, name, r_ends=None, gzip=None, single=None, gtf
 
     if single:
         # Single-end data
-        command += "--readFilesIn {} ".format(os.path.join(data_path, name + r_ends[0]))
+        read_files_in = [os.path.join(data_path, name + r_ends[0])]
     else:
         # Paired-end data
-        command += "--readFilesIn {} {} ".format(os.path.join(data_path, name + r_ends[0]), os.path.join(data_path, name + r_ends[1]))
+        read_files_in = [os.path.join(data_path, name + r_ends[0]), os.path.join(data_path, name + r_ends[1])]
+
+    command += "--readFilesIn {} ".format(" ".join(read_files_in))
 
     if gzip:
         command += "--readFilesCommand zcat "
@@ -168,7 +163,7 @@ def STAR_map(out_path, data_path, name, r_ends=None, gzip=None, single=None, gtf
     sbatch_file_name = "run_map.sh"
     sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "24:00:00", "60Gb", command, dep=dep)
     return submit_job(sbatch_file_name)
-
+    
 def STAR_map_depracated(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
   """Run script to perform mapping job for STAR"""
 
