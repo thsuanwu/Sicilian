@@ -116,7 +116,7 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
   sbatch_file("run_class_input.sh", out_path, name,"class_input_{}".format(name), "48:00:00", "200Gb", command, dep=dep)  # 96:00:00, and 210 Gb for Lu, 100 for others
   return submit_job("run_class_input.sh")
 
-def STAR_map(out_path, data_path, name, gzip=None, single=None, gtf_file=None, tenX=None, star_path=None, star_ref_path=None, suffix=".fastq.gz", dep=""):
+def STAR_map(out_path, data_path, name, gzip, single, gtf_file, tenX, star_path, star_ref_path, suffix=".fastq.gz", dep=""):
   """Run script to perform mapping job for STAR"""
 
   # Pattern matching to find R1 and R2 files
@@ -359,7 +359,6 @@ def main():
     else:
       extract_jobid = ""
 
-    print(single)
     if run_map:
       map_jobid = STAR_map(project_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ":".join(job_nums))
       jobs.append("map_{}.{}".format(name,map_jobid))
