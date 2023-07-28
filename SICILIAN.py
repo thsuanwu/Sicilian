@@ -175,7 +175,7 @@ def main():
   parser.add_argument("--out_dir", type=str, required=True, help="Path to the directory that will contain the folder specified by project_name for SICILIAN output files.")
   parser.add_argument("--project_name", type=str, required=True, help="Folder name for the SICILIAN output files.")
   parser.add_argument("--r_ends", nargs='+', type=str, required=True, help="List of unique endings for the file names of R1 and R2 fastq files. Example: --r_ends _1.fastq.gz _2.fastq.gz")
-  parser.add_argument("--names", nargs='+', type=str, required=True, help="List of sample names.")
+  parser.add_argument("--names", nargs='+', type=str, required=False, help="List of sample names.")
   parser.add_argument("--star_path", type=str, required=True, help="Path to the STAR executable file.")
   parser.add_argument("--star_ref_path", type=str, required=True, help="Path to the STAR index files.")
   parser.add_argument("--gtf_file", type=str, required=True, help="Path to the GTF file used as the reference annotation file for the genome assembly.")
