@@ -236,9 +236,9 @@ def main():
     name = run
 
     # Create a directory for the current run
-    out_path = os.path.join(project_path, name)
+    out_path = os.path.join(project_path)
     print(out_path)
-    os.makedirs(out_path, exist_ok=True)
+    os.makedirs(out_path, name, exist_ok=True)
     
     if not single:
       run_whitelist = False
