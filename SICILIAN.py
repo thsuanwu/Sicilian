@@ -123,6 +123,10 @@ def STAR_map(out_path, data_path, name, gzip=None, single=None, gtf_file=None, t
   r1_files = glob.glob(os.path.join(data_path, f"{name}_R1*{suffix}"))
   r2_files = glob.glob(os.path.join(data_path, f"{name}_R2*{suffix}"))
 
+  # Automatically detect single or paired-end data if not specified
+  if single is None:
+      single = not (r1_files and r2_files)
+
   if single:
       # Single-end data
       if r1_files:
