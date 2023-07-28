@@ -227,6 +227,7 @@ def main():
 
   for run in runs_to_process:
     print(f"Processing run: {run}")
+    name = run
 
     # Create a directory for the current run
     out_path = os.path.join(project_path, run)
