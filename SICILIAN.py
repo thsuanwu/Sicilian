@@ -120,8 +120,8 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
   """Run script to perform mapping job for STAR"""
   print(name)
   # Pattern matching to find R1 and R2 files
-  r1_files = glob.glob(os.path.join(data_path, f"{name}_R1*fastq*"))
-  r2_files = glob.glob(os.path.join(data_path, f"{name}_R2*fastq*"))
+  r1_files = glob.glob(os.path.join(data_path, f"{name}*R1*fastq*"))
+  r2_files = glob.glob(os.path.join(data_path, f"{name}*R2*fastq*"))
 
   print("Detected R1 files:")
   print(r1_files)
