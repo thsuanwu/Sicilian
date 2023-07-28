@@ -224,17 +224,21 @@ def main():
     runs_to_process = args.runs
   else:
     runs_to_process = [os.path.basename(run_path) for run_path in glob.glob(os.path.join(data_path, "*")) if os.path.isdir(run_path)]
-    
+
   print("Detected runs:")
   print(runs_to_process)
+  
+  total_jobs = []
+  total_job_names = []
 
   for run in runs_to_process:
     print(f"Processing run: {run}")
+    name = run
 
     # Create a directory for the current run
     out_path = os.path.join(project_path, run)
     os.makedirs(out_path, exist_ok=True)
-
+    
     if not single:
       run_whitelist = False
       run_extract = False
@@ -244,13 +248,12 @@ def main():
     else:
       gzip = False
 
-          
-    total_jobs = []
-    total_job_names = []
 
-    for name in names:
-      jobs = []
-      job_nums = []
+    jobs = []
+    job_nums = []
+    #for name in names:
+    #  jobs = []
+    #  job_nums = []
 
       if not os.path.exists("{}{}/log_files".format(out_path, name)):
         os.makedirs("{}{}/log_files".format(out_path, name))
