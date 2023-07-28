@@ -276,6 +276,6 @@ def main():
       job_nums.append(GLM_jobid)
     else:
       GLM_jobid =  ""
-  break
+    break
 
 main()
