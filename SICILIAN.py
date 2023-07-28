@@ -117,50 +117,50 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
   return submit_job("run_class_input.sh")
 
 # Pattern matching to find R1 and R2 files
-    r1_files = glob.glob(os.path.join(data_path, f"{name}_R1*{suffix}"))
-    r2_files = glob.glob(os.path.join(data_path, f"{name}_R2*{suffix}"))
+  r1_files = glob.glob(os.path.join(data_path, f"{name}_R1*{suffix}"))
+  r2_files = glob.glob(os.path.join(data_path, f"{name}_R2*{suffix}"))
 
-    if single:
-        # Single-end data
-        if r1_files:
-            read_files_in = [r1_files[0]]
-        else:
-            raise ValueError("R1 file not found for single-end data.")
-    else:
-        # Paired-end data
-        if r1_files and r2_files:
-            read_files_in = [r1_files[0], r2_files[0]]
-        elif r1_files or r2_files:
-            raise ValueError("Both R1 and R2 files should be present for paired-end data.")
-        else:
-            raise ValueError("No matching R1 and R2 files found.")
+  if single:
+      # Single-end data
+      if r1_files:
+          read_files_in = [r1_files[0]]
+      else:
+          raise ValueError("R1 file not found for single-end data.")
+  else:
+      # Paired-end data
+      if r1_files and r2_files:
+          read_files_in = [r1_files[0], r2_files[0]]
+      elif r1_files or r2_files:
+          raise ValueError("Both R1 and R2 files should be present for paired-end data.")
+      else:
+          raise ValueError("No matching R1 and R2 files found.")
 
-    # Construct the call to STAR
-    command = "{} --runThreadN 4 ".format(star_path)
-    command += "--genomeDir {} ".format(star_ref_path)
-    command += "--readFilesIn {} ".format(" ".join(read_files_in))
+  # Construct the call to STAR
+  command = "{} --runThreadN 4 ".format(star_path)
+  command += "--genomeDir {} ".format(star_ref_path)
+  command += "--readFilesIn {} ".format(" ".join(read_files_in))
 
-    if gzip:
-        command += "--readFilesCommand zcat "
+  if gzip:
+      command += "--readFilesCommand zcat "
 
-    command += "--twopassMode Basic "
-    command += "--alignIntronMax 1000000 "
-    command += "--outFileNamePrefix {}{}/ ".format(out_path, name)
-    command += "--outSAMtype BAM Unsorted "
-    command += "--outSAMattributes All "
-    command += "--chimOutType WithinBAM SoftClip Junctions "
-    command += "--chimJunctionOverhangMin 10 "
-    command += "--chimSegmentReadGapMax 0 "
-    command += "--chimOutJunctionFormat 1 "
-    command += "--chimSegmentMin 12 "
-    command += "--quantMode GeneCounts "
-    command += "--sjdbGTFfile {} ".format(gtf_file)
-    command += "--outReadsUnmapped Fastx \n\n"
+  command += "--twopassMode Basic "
+  command += "--alignIntronMax 1000000 "
+  command += "--outFileNamePrefix {}{}/ ".format(out_path, name)
+  command += "--outSAMtype BAM Unsorted "
+  command += "--outSAMattributes All "
+  command += "--chimOutType WithinBAM SoftClip Junctions "
+  command += "--chimJunctionOverhangMin 10 "
+  command += "--chimSegmentReadGapMax 0 "
+  command += "--chimOutJunctionFormat 1 "
+  command += "--chimSegmentMin 12 "
+  command += "--quantMode GeneCounts "
+  command += "--sjdbGTFfile {} ".format(gtf_file)
+  command += "--outReadsUnmapped Fastx \n\n"
 
-    # Submit the job
-    sbatch_file_name = "run_map.sh"
-    sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "24:00:00", "60Gb", command, dep=dep)
-    return submit_job(sbatch_file_name)
+  # Submit the job
+  sbatch_file_name = "run_map.sh"
+  sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "24:00:00", "60Gb", command, dep=dep)
+  return submit_job(sbatch_file_name)
 
 def STAR_map_depracated(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
   """Run script to perform mapping job for STAR"""
