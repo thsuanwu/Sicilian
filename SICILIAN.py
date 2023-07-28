@@ -172,8 +172,8 @@ def main():
   parser = argparse.ArgumentParser(description="Wrapper script for running SICILIAN")
   parser.add_argument("--runs", nargs="*", help="List of runs to process (optional)")
   parser.add_argument("--data_path", type=str, required=True, help="Path to the directory that contains the fastq files for the input RNA-Seq data.")
-  parser.add_argument("--out_dir", type=str, required=True, help="Path to the directory that will contain the folder specified by run_name for SICILIAN output files.")
-  parser.add_argument("--run_name", type=str, required=True, help="Folder name for the SICILIAN output files.")
+  parser.add_argument("--out_dir", type=str, required=True, help="Path to the directory that will contain the folder specified by project_name for SICILIAN output files.")
+  parser.add_argument("--project_name", type=str, required=True, help="Folder name for the SICILIAN output files.")
   parser.add_argument("--r_ends", nargs='+', type=str, required=True, help="List of unique endings for the file names of R1 and R2 fastq files. Example: --r_ends _1.fastq.gz _2.fastq.gz")
   parser.add_argument("--names", nargs='+', type=str, required=True, help="List of sample names.")
   parser.add_argument("--star_path", type=str, required=True, help="Path to the STAR executable file.")
@@ -193,7 +193,7 @@ def main():
   # Use the arguments from command line
   data_path = args.data_path
   out_dir = args.out_dir
-  run_name = args.run_name
+  project_name = args.project_name
   r_ends = args.r_ends
   names = args.names
   star_path = args.star_path
@@ -217,7 +217,7 @@ def main():
 ###################################################################
 
 
-  out_path = out_dir + "/{}/".format(run_name) 
+  project_path = out_dir + "/{}/".format(project_name) 
 
 # If the --runs argument is provided, use those runs; otherwise, detect all runs in the data_path
   if args.runs:
@@ -227,6 +227,11 @@ def main():
 
   for run in runs_to_process:
     print(f"Processing run: {run}")
+
+    # Create a directory for the current run
+    out_path = os.path.join(project_path, run)
+    os.makedirs(out_path, exist_ok=True)
+
     if not single:
       run_whitelist = False
       run_extract = False
