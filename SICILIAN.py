@@ -8,6 +8,26 @@ import argparse
 import time
 import argparse
 
+def detect_10x_fastq_files(data_path, r1_suffix="_R1_001.fastq.gz", r2_suffix="_R2_001.fastq.gz"):
+    """Automatically detect R1 and R2 fastq files generated from 10x demultiplexing.
+
+    Args:
+        data_path (str): Path to the directory containing the fastq files.
+        r1_suffix (str, optional): Suffix for R1 files. Defaults to "_R1_001.fastq.gz".
+        r2_suffix (str, optional): Suffix for R2 files. Defaults to "_R2_001.fastq.gz".
+
+    Returns:
+        tuple: A tuple containing the paths to R1 and R2 fastq files if both are found, or None otherwise.
+    """
+    r1_files = glob.glob(os.path.join(data_path, f"*{r1_suffix}"))
+    r2_files = glob.glob(os.path.join(data_path, f"*{r2_suffix}"))
+
+    if len(r1_files) == 1 and len(r2_files) == 1:
+        return r1_files[0], r2_files[0]
+    else:
+        print("Error: R1 or R2 files not found or multiple files detected.")
+        return None
+
 def sbatch_file(file_name,out_path, name, job_name, time, mem, command, dep="", dep_type = "afterok"):
   """Write sbatch script given parameters"""
   job_file = open(file_name, "w")
@@ -99,6 +119,21 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
 
 def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
   """Run script to perform mapping job for STAR"""
+  if tenX and r_ends is None:
+        r1_file, r2_file = detect_10x_fastq_files(data_path)
+        if r1_file and r2_file:
+            r_ends = [os.path.basename(r1_file), os.path.basename(r2_file)]
+        else:
+            print("Error: R1 and R2 files not found.")
+            return None
+
+    if r_ends is None:
+        print("Error: r_ends not provided.")
+        return None
+
+  print(r1_file)
+  print(r2_file)
+
   command = "mkdir -p {}{}\n".format(out_path, name)
   command += "{} --version\n".format(star_path)
   if single:
@@ -109,7 +144,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
     command += "{} --runThreadN 4 ".format(star_path)
     command += "--genomeDir {} ".format(star_ref_path)
     if tenX:
-      command += "--readFilesIn {}{}_extracted{} ".format(data_path, name, r_ends[i])
+      command += "--readFilesIn {}{}_extracted{} ".format(data_path, r_ends[i])
     else:
       command += "--readFilesIn {}{}{} ".format(data_path, name, r_ends[i])
     if gzip:
@@ -235,8 +270,10 @@ def main():
     print(f"Processing run: {run}")
     name = run
 
+
     data_path = os.path.join(data_path, name, '')
     print(f"Data path: {data_path}")
+
 
     # Create a directory for the current run
     #out_parent_dir = os.path.join(project_path)
