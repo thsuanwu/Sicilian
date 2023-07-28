@@ -175,7 +175,7 @@ def main():
   parser.add_argument("--out_dir", type=str, required=True, help="Path to the directory that will contain the folder specified by project_name for SICILIAN output files.")
   parser.add_argument("--project_name", type=str, required=True, help="Folder name for the SICILIAN output files.")
   parser.add_argument("--r_ends", nargs='+', type=str, required=True, help="List of unique endings for the file names of R1 and R2 fastq files. Example: --r_ends _1.fastq.gz _2.fastq.gz")
-  parser.add_argument("--names", nargs='+', type=str, required=False, help="List of sample names.")
+  #parser.add_argument("--names", nargs='+', type=str, required=False, help="List of sample names.")
   parser.add_argument("--star_path", type=str, required=True, help="Path to the STAR executable file.")
   parser.add_argument("--star_ref_path", type=str, required=True, help="Path to the STAR index files.")
   parser.add_argument("--gtf_file", type=str, required=True, help="Path to the GTF file used as the reference annotation file for the genome assembly.")
@@ -195,7 +195,7 @@ def main():
   out_dir = args.out_dir
   project_name = args.project_name
   r_ends = args.r_ends
-  names = args.names
+  #names = args.names
   star_path = args.star_path
   star_ref_path = args.star_ref_path
   gtf_file = args.gtf_file
@@ -241,48 +241,41 @@ def main():
     else:
       gzip = False
 
-          
-    total_jobs = []
-    total_job_names = []
-    for name in names:
-      jobs = []
-      job_nums = []
+    if not os.path.exists("{}{}/log_files".format(out_path, name)):
+      os.makedirs("{}{}/log_files".format(out_path, name))
 
-      if not os.path.exists("{}{}/log_files".format(out_path, name)):
-        os.makedirs("{}{}/log_files".format(out_path, name))
+    if run_whitelist:
+      whitelist_jobid = whitelist(data_path,out_path, name, bc_pattern, r_ends)
+      jobs.append("whitelist_{}.{}".format(name, whitelist_jobid))
+      job_nums.append(whitelist_jobid)
+    else:
+      whitelist_jobid = ""
 
-      if run_whitelist:
-        whitelist_jobid = whitelist(data_path,out_path, name, bc_pattern, r_ends)
-        jobs.append("whitelist_{}.{}".format(name, whitelist_jobid))
-        job_nums.append(whitelist_jobid)
-      else:
-        whitelist_jobid = ""
+    if run_extract:
+      extract_jobid = extract(out_path, data_path, name, bc_pattern, r_ends, dep = ":".join(job_nums))
+      jobs.append("extract_{}.{}".format(name, extract_jobid))
+      job_nums.append(extract_jobid)
+    else:
+      extract_jobid = ""
 
-      if run_extract:
-        extract_jobid = extract(out_path, data_path, name, bc_pattern, r_ends, dep = ":".join(job_nums))
-        jobs.append("extract_{}.{}".format(name, extract_jobid))
-        job_nums.append(extract_jobid)
-      else:
-        extract_jobid = ""
+    if run_map:
+      map_jobid = STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ":".join(job_nums))
+      jobs.append("map_{}.{}".format(name,map_jobid))
+      job_nums.append(map_jobid)
 
-      if run_map:
-        map_jobid = STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ":".join(job_nums))
-        jobs.append("map_{}.{}".format(name,map_jobid))
-        job_nums.append(map_jobid)
+    if run_class:
+      class_input_jobid = class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded_library, dep=":".join(job_nums))
+      jobs.append("class_input_{}.{}".format(name,class_input_jobid))
+      job_nums.append(class_input_jobid)
+    else:
+      class_input_jobid = ""
 
-      if run_class:
-        class_input_jobid = class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded_library, dep=":".join(job_nums))
-        jobs.append("class_input_{}.{}".format(name,class_input_jobid))
-        job_nums.append(class_input_jobid)
-      else:
-        class_input_jobid = ""
-
-      if run_GLM:
-        GLM_jobid = GLM(out_path, name, gtf_file, single, tenX, stranded_library, domain_file, exon_pickle_file, splice_pickle_file, dep=":".join(job_nums))
-        jobs.append("GLM_{}.{}".format(name,GLM_jobid))
-        job_nums.append(GLM_jobid)
-      else:
-        GLM_jobid =  ""
-    break
+    if run_GLM:
+      GLM_jobid = GLM(out_path, name, gtf_file, single, tenX, stranded_library, domain_file, exon_pickle_file, splice_pickle_file, dep=":".join(job_nums))
+      jobs.append("GLM_{}.{}".format(name,GLM_jobid))
+      job_nums.append(GLM_jobid)
+    else:
+      GLM_jobid =  ""
+  break
 
 main()
