@@ -41,8 +41,8 @@ def sbatch_file(file_name,out_path, name, job_name, time, mem, command, dep="", 
   job_file.write("#SBATCH --account=mnicolls\n")
 #  job_file.write("#SBATCH --account=horence\n")
 #  job_file.write("#SBATCH --partition=nih_s10\n")
-  job_file.write("#SBATCH --mail-user=thsuanwu@stanford.edu")
-  job_file.write("#SBATCH --mail-type=ALL")
+  job_file.write("#SBATCH --mail-user=thsuanwu@stanford.edu\n")
+  job_file.write("#SBATCH --mail-type=ALL\n")
   job_file.write("#SBATCH --nodes=1\n")
   job_file.write("#SBATCH --mem={}\n".format(mem)) 
   if dep != "":
@@ -300,19 +300,29 @@ def main():
 
   project_path = out_dir + "/{}/".format(project_name) 
 
-# If the --runs argument is provided, use those runs; otherwise, detect all runs in the data_path
+ # If the --runs argument is provided, use those runs; otherwise, detect all runs in the data_path
   if args.runs:
-    runs_to_process = args.runs
+      runs_to_process = args.runs
   else:
-    runs_to_process = [os.path.basename(run_path) for run_path in glob.glob(os.path.join(data_path, "*")) if os.path.isdir(run_path)]
+      runs_to_process = [os.path.basename(run_path) for run_path in glob.glob(os.path.join(data_path, "*")) if os.path.isdir(run_path)]
 
-  print("Detected runs:")
-  print(runs_to_process)
+  # Cross-reference the list of runs with the actual runs in the data_path
+  existing_runs = [run for run in runs_to_process if os.path.exists(os.path.join(data_path, run))]
+  non_existing_runs = list(set(runs_to_process) - set(existing_runs))
+
+  if non_existing_runs:
+      print("The following runs were not found in the data_path directory:")
+      for run in non_existing_runs:
+          print(run)
+      sys.exit(1)
+
+  print("Processing runs:")
+  print(existing_runs)
   
   total_jobs = []
   total_job_names = []
 
-  for run in runs_to_process:
+  for run in existing_runs:
     print(f"Processing run: {run}")
     name = run
 
