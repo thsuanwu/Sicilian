@@ -70,7 +70,7 @@ def GLM(out_path, name, gtf_file, single, tenX, stranded_library, domain_file, e
   else:
     command += " 0 "
   command += "{} {} {} ".format(domain_file, exon_pickle_file, splice_pickle_file)
-  sbatch_file("run_GLM.sh", out_path, name,"GLM_{}".format(name), "48:00:00", "150Gb", command, dep=dep)  # used 200Gb for CML 80Gb for others and 300 for 10x blood3 
+  sbatch_file("run_GLM.sh", out_path, name,"GLM_{}".format(name), "72:00:00", "150Gb", command, dep=dep)  # used 200Gb for CML 80Gb for others and 300 for 10x blood3 
   return submit_job("run_GLM.sh")
 
 def whitelist(data_path,out_path, name, bc_pattern, r_ends):
@@ -81,7 +81,7 @@ def whitelist(data_path,out_path, name, bc_pattern, r_ends):
   command += "--log2stderr > {}{}_whitelist.txt ".format(data_path,name)
   command += "--plot-prefix={}{} ".format(data_path, name)
  # command += "--knee-method=density "
-  sbatch_file("run_whitelist.sh",out_path, name, "whitelist_{}".format(name), "24:00:00", "20Gb", command)
+  sbatch_file("run_whitelist.sh",out_path, name, "whitelist_{}".format(name), "48:00:00", "20Gb", command)
   return submit_job("run_whitelist.sh")
 
 def extract(out_path, data_path, name, bc_pattern, r_ends, dep = ""):
@@ -95,7 +95,7 @@ def extract(out_path, data_path, name, bc_pattern, r_ends, dep = ""):
 #  command += "--filter-cell-barcode "
   command += "--whitelist={}{}_whitelist.txt ".format(data_path, name)
   command += "--error-correct-cell "
-  sbatch_file("run_extract.sh", out_path, name,"extract_{}".format(name), "24:00:00", "20Gb", command, dep = dep)
+  sbatch_file("run_extract.sh", out_path, name,"extract_{}".format(name), "48:00:00", "20Gb", command, dep = dep)
   return submit_job("run_extract.sh")
 
 
@@ -113,7 +113,7 @@ def class_input(out_path, name, gtf_file, annotator_file, tenX, single, stranded
   command += "--stranded_library "
   if not single:
     command += "--paired "
-  sbatch_file("run_class_input.sh", out_path, name,"class_input_{}".format(name), "48:00:00", "200Gb", command, dep=dep)  # 96:00:00, and 210 Gb for Lu, 100 for others
+  sbatch_file("run_class_input.sh", out_path, name,"class_input_{}".format(name), "72:00:00", "200Gb", command, dep=dep)  # 96:00:00, and 210 Gb for Lu, 100 for others
   return submit_job("run_class_input.sh")
 
 def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
@@ -174,7 +174,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
 
   # Submit the job
   sbatch_file_name = "run_map.sh"
-  sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "24:00:00", "60Gb", command, dep=dep)
+  sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "72:00:00", "60Gb", command, dep=dep)
   return submit_job(sbatch_file_name)
     
 def STAR_map_depracated(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
