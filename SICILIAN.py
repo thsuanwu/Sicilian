@@ -174,7 +174,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
 
   # Submit the job
   sbatch_file_name = "run_map.sh"
-  sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "72:00:00", "120Gb", command, dep=dep)
+  sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "96:00:00", "80Gb", command, dep=dep)
   return submit_job(sbatch_file_name)
     
 def STAR_map_depracated(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
