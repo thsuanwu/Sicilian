@@ -168,13 +168,13 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
   command += "--chimSegmentReadGapMax 0 "
   command += "--chimOutJunctionFormat 1 "
   command += "--chimSegmentMin 12 "
-  command += "--quantMode GeneCounts "
-  command += "--sjdbGTFfile {} ".format(gtf_file)
-  command += "--outReadsUnmapped Fastx \n\n"
+#  command += "--quantMode GeneCounts "
+#  command += "--sjdbGTFfile {} ".format(gtf_file)
+#  command += "--outReadsUnmapped Fastx \n\n"
 
   # Submit the job
   sbatch_file_name = "run_map.sh"
-  sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "144:00:00", "80Gb", command, dep=dep)
+  sbatch_file(sbatch_file_name, out_path, name, "map_{}".format(name), "144:00:00", "120Gb", command, dep=dep)
   return submit_job(sbatch_file_name)
     
 def STAR_map_depracated(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, star_path, star_ref_path, dep = ""):
@@ -267,6 +267,9 @@ def main():
   parser.add_argument("--single", action="store_true", help="Set this flag if the data is single-end.")
   parser.add_argument("--tenX", action="store_true", help="Set this flag if the input RNA-Seq data is 10x.")
   parser.add_argument("--stranded_library", action="store_true", help="Set this flag if input RNA-Seq data is based on a stranded library.")
+  parser.add_argument("--run_whitelist", action="store_true", help="Set this flag if your input data is 10X want to run UMI-tools whitelist script to extract cell barcodes and identify the most likely true cell barcodes (will be run only for 10X).")
+  parser.add_argument("--run_extract", action="store_true", help="Set equal to True if you want to run UMI-tools extract script which removes UMIs from fastq reads and append them to read name (will be run only for 10x).")
+
 # parser.add_argument("--bc_pattern", type=str, default="C"*16 + "N"*12, help="Barcode pattern for 10x data.")
 
   args = parser.parse_args()
