@@ -120,6 +120,10 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
   """Run script to perform mapping job for STAR"""
   print(data_path)
   print(name)
+
+  command = "mkdir -p {}{}\n".format(out_path, name)
+  command += "{} --version\n".format(star_path)
+
   # Pattern matching to find R1 and R2 files
   r1_files = glob.glob(os.path.join(data_path, f"{name}*R1*fastq*"))
   r2_files = glob.glob(os.path.join(data_path, f"{name}*R2*fastq*"))
@@ -155,7 +159,6 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
 
   # Construct the call to STAR
   for i in range(l,2):
-    print(i)
     command += "{} --runThreadN 4 ".format(star_path)
     command += "--genomeDir {} ".format(star_ref_path)
     command += "--readFilesIn {} ".format(read_files_in[i])
