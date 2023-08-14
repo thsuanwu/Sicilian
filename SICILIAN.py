@@ -144,6 +144,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
       raise ValueError("R1 file not found for single-end data.")
   else:
     print("Data is pair-ended.")
+    print(l)
     l = 0 # iterate twice to make two calls to star
     # Paired-end data
     if r1_files and r2_files:
@@ -155,6 +156,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
 
   # Construct the call to STAR
   for i in range(l,2):
+    print(i)
     command = "{} --runThreadN 4 ".format(star_path)
     command += "--genomeDir {} ".format(star_ref_path)
     command += "--readFilesIn {} ".format(read_files_in[i])
