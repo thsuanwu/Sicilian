@@ -138,27 +138,27 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
   if single:
     l = 1 # only construct a single call to STAR
       # Single-end data
-      if r1_files:
-          read_files_in = [r1_files[0]]
-      else:
-          raise ValueError("R1 file not found for single-end data.")
+    if r1_files:
+      read_files_in = [r1_files[0]]
+    else:
+      raise ValueError("R1 file not found for single-end data.")
   else:
     l = 0 # iterate twice to make two calls to star
       # Paired-end data
-      if r1_files and r2_files:
-          read_files_in = [r1_files[0], r2_files[0]]
-      elif r1_files or r2_files:
-          raise ValueError("Both R1 and R2 files should be present for paired-end data.")
-      else:
-          raise ValueError("No matching R1 and R2 files found.")
+    if r1_files and r2_files:
+      read_files_in = [r1_files[0], r2_files[0]]
+    elif r1_files or r2_files:
+      raise ValueError("Both R1 and R2 files should be present for paired-end data.")
+    else:
+      raise ValueError("No matching R1 and R2 files found.")
 
   # Construct the call to STAR
   for i in range(l,2):
     command = "{} --runThreadN 4 ".format(star_path)
     command += "--genomeDir {} ".format(star_ref_path)
-   command += "--readFilesIn {} ".format(" ".join(read_files_in[i]))
+    command += "--readFilesIn {} ".format(" ".join(read_files_in[i]))
     if gzip:
-        command += "--readFilesCommand zcat "
+      command += "--readFilesCommand zcat "
     command += "--twopassMode Basic "
     command += "--alignIntronMax 1000000 "
     #command += "--outFileNamePrefix {}{}/ ".format(out_path, name)
