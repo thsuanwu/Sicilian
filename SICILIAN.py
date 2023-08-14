@@ -156,7 +156,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
   for i in range(l,2):
     command = "{} --runThreadN 4 ".format(star_path)
     command += "--genomeDir {} ".format(star_ref_path)
-    command += "--readFilesIn {} ".format(" ".join(read_files_in[i]))
+    command += "--readFilesIn {} ".format(read_files_in[i])
     if gzip:
       command += "--readFilesCommand zcat "
     command += "--twopassMode Basic "
