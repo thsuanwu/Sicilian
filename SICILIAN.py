@@ -136,12 +136,14 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
       print(f"Automatically detected single-end: {single}")
 
   if single:
+    l = 1 # only construct a single call to STAR
       # Single-end data
       if r1_files:
           read_files_in = [r1_files[0]]
       else:
           raise ValueError("R1 file not found for single-end data.")
   else:
+    l = 0 # iterate twice to make two calls to star
       # Paired-end data
       if r1_files and r2_files:
           read_files_in = [r1_files[0], r2_files[0]]
@@ -151,26 +153,26 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
           raise ValueError("No matching R1 and R2 files found.")
 
   # Construct the call to STAR
-  command = "{} --runThreadN 4 ".format(star_path)
-  command += "--genomeDir {} ".format(star_ref_path)
-  command += "--readFilesIn {} ".format(" ".join(read_files_in))
-
-  if gzip:
-      command += "--readFilesCommand zcat "
-
-  command += "--twopassMode Basic "
-  command += "--alignIntronMax 1000000 "
-  command += "--outFileNamePrefix {}{}/ ".format(out_path, name)
-  command += "--outSAMtype BAM Unsorted "
-  command += "--outSAMattributes All "
-  command += "--chimOutType WithinBAM SoftClip Junctions "
-  command += "--chimJunctionOverhangMin 10 "
-  command += "--chimSegmentReadGapMax 0 "
-  command += "--chimOutJunctionFormat 1 "
-  command += "--chimSegmentMin 12 "
-#  command += "--quantMode GeneCounts "
-#  command += "--sjdbGTFfile {} ".format(gtf_file)
-#  command += "--outReadsUnmapped Fastx \n\n"
+  for i in range(l,2):
+    command = "{} --runThreadN 4 ".format(star_path)
+    command += "--genomeDir {} ".format(star_ref_path)
+   command += "--readFilesIn {} ".format(" ".join(read_files_in[i]))
+    if gzip:
+        command += "--readFilesCommand zcat "
+    command += "--twopassMode Basic "
+    command += "--alignIntronMax 1000000 "
+    #command += "--outFileNamePrefix {}{}/ ".format(out_path, name)
+    command += "--outFileNamePrefix {}{}/{} ".format(out_path, name, i + 1)
+    command += "--outSAMtype BAM Unsorted "
+    command += "--outSAMattributes All "
+    command += "--chimOutType WithinBAM SoftClip Junctions "
+    command += "--chimJunctionOverhangMin 10 "
+    command += "--chimSegmentReadGapMax 0 "
+    command += "--chimOutJunctionFormat 1 "
+    command += "--chimSegmentMin 12 "
+    command += "--quantMode GeneCounts "
+    command += "--sjdbGTFfile {} ".format(gtf_file)
+    command += "--outReadsUnmapped Fastx \n\n"
 
   # Submit the job
   sbatch_file_name = "run_map.sh"
