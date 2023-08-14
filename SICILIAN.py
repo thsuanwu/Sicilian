@@ -143,8 +143,9 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
     else:
       raise ValueError("R1 file not found for single-end data.")
   else:
+    print("Data is pair-ended.")
     l = 0 # iterate twice to make two calls to star
-      # Paired-end data
+    # Paired-end data
     if r1_files and r2_files:
       read_files_in = [r1_files[0], r2_files[0]]
     elif r1_files or r2_files:
