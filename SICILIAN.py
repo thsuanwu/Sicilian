@@ -122,7 +122,7 @@ def STAR_map(out_path, data_path, name, r_ends, gzip, single, gtf_file, tenX, st
   print(name)
 
   command = "mkdir -p {}{}\n".format(out_path, name)
-  command += "{} --version\n".format(star_path)
+  #command += "{} --version\n".format(star_path)
 
   # Pattern matching to find R1 and R2 files
   r1_files = glob.glob(os.path.join(data_path, f"{name}*R1*fastq*"))
